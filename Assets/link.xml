@@ -1,0 +1,13 @@
+﻿<linker>
+    <assembly fullname="Azure.Core" preserve="all"/>
+    <assembly fullname="Azure.Messaging.WebPubSub" preserve="all"/>
+    <assembly fullname="Microsoft.Bcl.AsyncInterfaces" preserve="all"/>
+    <assembly fullname="System.Buffers" preserve="all"/>
+    <assembly fullname="System.Diagnostics.DiagnosticSource" preserve="all"/>
+    <assembly fullname="System.Memory" preserve="all"/>
+    <assembly fullname="System.Memory.Data" preserve="all"/>
+    <assembly fullname="System.Runtime.CompilerServices.Unsafe" preserve="all"/>
+    <assembly fullname="System.Text.Encodings.Web" preserve="all"/>
+    <assembly fullname="System.Text.Json" preserve="all"/>
+    <assembly fullname="System.Threading.Tasks.Extensions" preserve="all"/>
+</linker>
