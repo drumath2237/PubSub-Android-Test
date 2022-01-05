@@ -4,6 +4,7 @@ using UnityEngine;
 using Azure.Messaging.WebPubSub;
 using PubSubAndroidTest.Scripts;
 using TMPro;
+using System.Threading.Tasks;
 
 public class PubSubTest : MonoBehaviour
 {
@@ -14,6 +15,8 @@ public class PubSubTest : MonoBehaviour
   [SerializeField] private WebPubSubConfig config;
 
   [SerializeField] private TextMeshProUGUI _logText;
+
+  public event Action<string> OnMessage;
 
   private async void Start()
   {
@@ -35,6 +38,19 @@ public class PubSubTest : MonoBehaviour
     }
 
 
+  }
+
+  private async Task ReceiveLoop()
+  {
+    const int maxBuffer = 4096;
+    byte[] receiveBUffer = new byte[maxBuffer];
+
+    while (ws.State = WebSocketState.Open)
+    {
+      WebSocketReceiveResult websocketRes = await ws.ReceiveAsync(receiveBUffer, default);
+
+      _logText.text = $"MessageType:{websocketRes.MessageType}, EndOfMessage?:{websocketRes.EndOfMessage}, count:{websocketRes.Count}";
+    }
   }
 
   /// <summary>
