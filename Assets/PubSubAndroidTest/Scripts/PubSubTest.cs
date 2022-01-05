@@ -8,82 +8,89 @@ using System.Threading.Tasks;
 
 public class PubSubTest : MonoBehaviour
 {
-  private WebPubSubServiceClient client = null;
+    private WebPubSubServiceClient client = null;
 
-  private ClientWebSocket ws = null;
+    private ClientWebSocket ws = null;
 
-  [SerializeField] private WebPubSubConfig config;
+    [SerializeField] private WebPubSubConfig config;
 
-  [SerializeField] private TextMeshProUGUI _logText;
+    [SerializeField] private TextMeshProUGUI _logText;
 
-  public event Action<string> OnMessage;
+    public event Action<string> OnMessage;
 
-  private async void Start()
-  {
-    client = new WebPubSubServiceClient(config.ConnectionString, config.HubName);
-    var url = await client.GetClientAccessUriAsync();
-
-    ws = new ClientWebSocket();
-
-    try
+    private async void Start()
     {
-      await ws.ConnectAsync(url, default);
+        client = new WebPubSubServiceClient(config.ConnectionString, config.HubName);
+        var url = await client.GetClientAccessUriAsync();
 
-      _logText.text = $"Connected status: {ws.State}";
-    }
-    catch (System.Exception e)
-    {
-      _logText.text = e.ToString();
-      throw;
-    }
+        ws = new ClientWebSocket();
 
+        try
+        {
+            await ws.ConnectAsync(url, default);
 
-  }
+            _logText.text = $"Connected status: {ws.State}";
+        }
+        catch (Exception e)
+        {
+            _logText.text = e.ToString();
+            throw;
+        }
 
-  private async Task ReceiveLoop()
-  {
-    const int maxBuffer = 4096;
-    byte[] receiveBUffer = new byte[maxBuffer];
-
-    while (ws.State = WebSocketState.Open)
-    {
-      WebSocketReceiveResult websocketRes = await ws.ReceiveAsync(receiveBUffer, default);
-
-      _logText.text = $"MessageType:{websocketRes.MessageType}, EndOfMessage?:{websocketRes.EndOfMessage}, count:{websocketRes.Count}";
-    }
-  }
-
-  public async void SendTextToAll()
-  {
-    if (client == null)
-    {
-      return;
+        _ = ReceiveLoop();
     }
 
-    try
+    private async Task ReceiveLoop()
     {
-      await client.SendToAllAsync("Hello guys");
-      _logText.text = "message sent";
-    }
-    catch (System.Exception e)
-    {
-      _logText.text = e.ToString();
-      throw;
-    }
-  }
+        const int maxBuffer = 4096;
+        var receiveBuffer = new byte[maxBuffer];
+        var arraySegment = new ArraySegment<byte>(receiveBuffer);
 
-  /// <summary>
-  /// This function is called when the behaviour becomes disabled or inactive.
-  /// </summary>
-  private async void OnDisable()
-  {
-    if (ws == null)
-    {
-      return;
+
+        while (ws.State == WebSocketState.Open)
+        {
+            var websocketRes = await ws.ReceiveAsync(arraySegment, default);
+
+            _logText.text =
+                $"MessageType:{websocketRes.MessageType}, EndOfMessage?:{websocketRes.EndOfMessage}, count:{websocketRes.Count}";
+        }
+
+        if (ws.State == WebSocketState.Closed)
+        {
+            if (ws.CloseStatus != null)
+            {
+                await ws.CloseAsync(ws.CloseStatus.Value, "", default);
+            }
+        }
     }
 
-    await ws.CloseAsync();
-    ws.Dispose();
-    ws = null;
-  }
+    public async void SendTextToAll()
+    {
+        if (client == null)
+        {
+            return;
+        }
+
+        try
+        {
+            await client.SendToAllAsync("Hello guys");
+            Debug.Log("message sent");
+        }
+        catch (Exception e)
+        {
+            _logText.text = e.ToString();
+            throw;
+        }
+    }
+
+    private void OnDisable()
+    {
+        if (ws == null)
+        {
+            return;
+        }
+
+        ws.Dispose();
+        ws = null;
+    }
 }
