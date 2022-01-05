@@ -7,23 +7,48 @@ using TMPro;
 
 public class PubSubTest : MonoBehaviour
 {
-    private WebPubSubServiceClient client = null;
+  private WebPubSubServiceClient client = null;
 
-    [SerializeField] private WebPubSubConfig config;
+  private ClientWebSocket ws = null;
 
-    [SerializeField] private TextMeshProUGUI _logText;
-    
-    private async void Start()
+  [SerializeField] private WebPubSubConfig config;
+
+  [SerializeField] private TextMeshProUGUI _logText;
+
+  private async void Start()
+  {
+    client = new WebPubSubServiceClient(config.ConnectionString, config.HubName);
+    var url = await client.GetClientAccessUriAsync();
+
+    ws = new ClientWebSocket();
+
+    try
     {
-        client = new WebPubSubServiceClient(config.ConnectionString, config.HubName);
-        var url = await client.GetClientAccessUriAsync();
+      await ws.ConnectAsync(url, default);
 
-        using var ws = new ClientWebSocket();
-        
-        await ws.ConnectAsync(url, default);
-
-        Debug.Log("Connected!");
-        _logText.text = "Connected";
-
+      _logText.text = $"Connected status: {ws.State}";
     }
+    catch (System.Exception e)
+    {
+      _logText.text = e.ToString();
+      throw;
+    }
+
+
+  }
+
+  /// <summary>
+  /// This function is called when the behaviour becomes disabled or inactive.
+  /// </summary>
+  private async void OnDisable()
+  {
+    if (ws == null)
+    {
+      return;
+    }
+
+    await ws.CloseAsync();
+    ws.Dispose();
+    ws = null;
+  }
 }
