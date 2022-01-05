@@ -53,6 +53,25 @@ public class PubSubTest : MonoBehaviour
     }
   }
 
+  public async void SendTextToAll()
+  {
+    if (client == null)
+    {
+      return;
+    }
+
+    try
+    {
+      await client.SendToAllAsync("Hello guys");
+      _logText.text = "message sent";
+    }
+    catch (System.Exception e)
+    {
+      _logText.text = e.ToString();
+      throw;
+    }
+  }
+
   /// <summary>
   /// This function is called when the behaviour becomes disabled or inactive.
   /// </summary>
