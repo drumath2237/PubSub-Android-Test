@@ -67,3 +67,5 @@ crashlytics-build.properties
 Assets/PubSubAndroidTest/Plugins/
 
 _Externals/
+
+Assets/PubSubAndroidTest/Settings/PubSubConfig.asset
