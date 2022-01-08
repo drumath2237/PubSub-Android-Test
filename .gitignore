@@ -65,3 +65,5 @@ crashlytics-build.properties
 .idea/
 
 Assets/PubSubAndroidTest/Plugins/
+
+_Externals/
